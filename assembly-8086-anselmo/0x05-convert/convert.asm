@@ -33,7 +33,7 @@ show_val:
 ; param:  ecx <-- length
 ; return: eax <-- integer value
 string_to_int:
-    xor ebx, ebx ; set eax to 0
+    xor ebx, ebx ; set ebx to 0
 .next_str_dig:
     movzx eax, byte[esi]
     inc esi

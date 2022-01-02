@@ -1,2 +1,3 @@
-# buffer-overflow-studies
-Studies about stack overflow techniques.
+# Buffer Overflow Studies
+
+Studies about stack overflow techniques and 8086 assembly.

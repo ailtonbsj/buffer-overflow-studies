@@ -11,15 +11,20 @@ section .data
     opc4 db '4. Dividir',LF,NULL
     msgOpc db LF,'Deseja realizar? ',NULL
     msgErr db LF,'Valor de opção Inválido!',LF, NULL
-    p1 db 'Processo de Adição',LF,NULL
-    p2 db 'Processo de Subtração',LF,NULL
-    p3 db 'Processo de Multiplicação',LF,NULL
-    p4 db 'Processo de Divisão',LF,NULL
+    equal db ' = ',NULL
+    _plus db ' + ',NULL
+    _minus db ' - ',NULL
+    _times db ' * ',NULL
+    _slash db ' // ',NULL
+    vspace db LF,LF,NULL
 
 section .bss
-    opc resb 2
-    num1 resb 4
-    num2 resb 4
+    opc     resb 2
+    num1Str resb 8
+    num2Str resb 8
+    num1Int resd 1
+    num2Int resd 1
+    resInt  resd 1
 
 section .text
 
@@ -62,16 +67,31 @@ _start:
     ; Get value 1
     mov ecx, obVal1
     call print
-    mov ecx, num1
-    mov edx, 0x04
+    mov ecx, num1Str
+    mov edx, 0x08
     call scan
+    lea esi, [num1Str]
+    call atoi
+    mov [num1Int], eax
 
     ; Get value 2
     mov ecx, obVal2
     call print
-    mov ecx, num2
-    mov edx, 0x04
+    mov ecx, num2Str
+    mov edx, 0x08
     call scan
+    lea esi, [num2Str]
+    call atoi
+    mov [num2Int], eax
+
+    mov ecx, vspace
+    call print
+
+    ; show first operand
+    mov eax, [num1Int]
+    call itoa
+    mov ecx, buffer
+    call print
 
     ; Convert option to int
     mov ah, [opc]
@@ -88,26 +108,74 @@ _start:
     je divide
     
 add:
-    mov ecx, p1
+    ; show +
+    mov ecx, _plus
     call print
-    jmp exit
+
+    mov eax, [num1Int]
+    add eax, [num2Int]
+    mov [resInt], eax
+    jmp show_result
 
 subtract:
-    mov ecx, p2
+    ; show -
+    mov ecx, _minus
     call print
-    jmp exit
+
+    mov eax, [num1Int]
+    mov ebx, [num2Int]
+    cmp ebx, eax
+    jg error
+    sub eax, ebx
+    mov [resInt], eax
+    
+    jmp show_result
 
 multiply:
-    mov ecx, p3
+    ; show +
+    mov ecx, _times
     call print
-    jmp exit
+
+    mov eax, [num1Int]
+    imul eax, [num2Int]
+    mov [resInt], eax
+    jmp show_result
 
 divide:
-    mov ecx, p4
+    ; show /
+    mov ecx, _slash
     call print
-    jmp exit
+
+    mov eax, [num1Int]
+    mov ebx, [num2Int]
+    test ebx, ebx
+    jz error
+    xor edx, edx ; edx need to be 0 for div work
+    div ebx ; eax = eax // ebx , edx = eax % ebx
+    mov [resInt], eax
+    jmp show_result
 
 error:
     mov ecx, msgErr
     call print
+    jmp exit
+
+show_result:
+    ; show second operand
+    mov eax, [num2Int]
+    call itoa
+    mov ecx, buffer
+    call print
+    ; Show =
+    mov ecx, equal
+    call print
+    ; Result
+    mov eax, [resInt]
+    call itoa
+    mov ecx, buffer
+    call print
+
+    mov ecx, vspace
+    call print
+
     jmp exit
