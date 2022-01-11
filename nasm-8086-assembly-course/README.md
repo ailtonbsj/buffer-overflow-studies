@@ -1,4 +1,4 @@
-# Course of Assembly by Fernando Anselmo
+# Course of NASM Assembly
 
 ## Some commands
 
